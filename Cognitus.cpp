@@ -24,18 +24,10 @@ int main() {
 
 	displayBitboards();
 
-	std::vector<struct Move> myMoves = generateMoves(myGame);
+	bool check = isCheck(myGame);
 
-	// loop through the generated moves and print
-	for (int i = 0; i < myMoves.size(); ++i) {
-		// get constants to pass to printf
-		const char* startSquare = myMoves.at(i).Move[0];
-		const char* endSquare = myMoves.at(i).Move[1];
-
-		std::printf(startSquare);
-		std::printf(endSquare);
-		std::printf("\n");
-	}
-
+	if (check) printf("The king is in check!");
+	else printf("The king is not in check.");
+	
 	return 0;
 }
