@@ -19,4 +19,4 @@ std::vector<struct Move> generateSoutheastToNorthwestRay(int square_key, bool pi
 
 std::vector<struct Move> generateMoves(struct Game *game);
 
-//bool isCheck(); // returns 1 if side to move is in check
+bool isCheck(struct Game *game); // returns 1 if side to move is in check
