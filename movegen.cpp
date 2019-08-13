@@ -115,6 +115,9 @@ std::vector<struct Move> generateHorizontalRay(int square_key, bool piece_color,
 										else if (getBit(Bitboard::blackQueenBitboard, i) == 1) {
 											horizontal_capture_move.CapturedPiece = 'q';
 										}
+										else if (getBit(Bitboard::blackKingBitboard, i) == 1) {
+											horizontal_capture_move.CapturedPiece = 'k';
+										}
 
 										horizontal_ray_moves.push_back(horizontal_capture_move);
 
@@ -193,6 +196,9 @@ std::vector<struct Move> generateHorizontalRay(int square_key, bool piece_color,
 										}
 										else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) {
 											horizontal_capture_move.CapturedPiece = 'Q';
+										}
+										else if (getBit(Bitboard::whiteKingBitboard, i) == 1) {
+											horizontal_capture_move.CapturedPiece = 'K';
 										}
 
 										horizontal_ray_moves.push_back(horizontal_capture_move);
@@ -283,6 +289,7 @@ std::vector<struct Move> generateVerticalRay(int square_key, bool piece_color, c
 				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
 				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
 				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
 
 				vertical_ray_moves.push_back(capture_move);
 
@@ -321,6 +328,7 @@ std::vector<struct Move> generateVerticalRay(int square_key, bool piece_color, c
 				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
 				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
 				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
 
 				vertical_ray_moves.push_back(capture_move);
 
@@ -359,6 +367,7 @@ std::vector<struct Move> generateVerticalRay(int square_key, bool piece_color, c
 				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
 				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
 				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
 
 				vertical_ray_moves.push_back(capture_move);
 
@@ -397,6 +406,7 @@ std::vector<struct Move> generateVerticalRay(int square_key, bool piece_color, c
 				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
 				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
 				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
 
 				vertical_ray_moves.push_back(capture_move);
 
@@ -485,6 +495,9 @@ std::vector<struct Move> generateSouthwestToNortheastRay(int square_key, bool pi
 										else if (getBit(Bitboard::blackQueenBitboard, i) == 1) {
 											swtone_capture_move.CapturedPiece = 'q';
 										}
+										else if (getBit(Bitboard::blackKingBitboard, i) == 1) {
+											swtone_capture_move.CapturedPiece = 'k';
+										}
 
 										swtone_ray_moves.push_back(swtone_capture_move);
 
@@ -561,6 +574,9 @@ std::vector<struct Move> generateSouthwestToNortheastRay(int square_key, bool pi
 										}
 										else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) {
 											swtone_capture_move.CapturedPiece = 'Q';
+										}
+										else if (getBit(Bitboard::whiteKingBitboard, i) == 1) {
+											swtone_capture_move.CapturedPiece = 'K';
 										}
 
 										swtone_ray_moves.push_back(swtone_capture_move);
@@ -656,6 +672,9 @@ std::vector<struct Move> generateSoutheastToNorthwestRay(int square_key, bool pi
 										else if (getBit(Bitboard::blackQueenBitboard, i) == 1) {
 											setonw_capture_move.CapturedPiece = 'q';
 										}
+										else if (getBit(Bitboard::blackKingBitboard, i) == 1) {
+											setonw_capture_move.CapturedPiece = 'k';
+										}
 
 										setonw_ray_moves.push_back(setonw_capture_move);
 
@@ -732,6 +751,9 @@ std::vector<struct Move> generateSoutheastToNorthwestRay(int square_key, bool pi
 										}
 										else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) {
 											swtone_capture_move.CapturedPiece = 'Q';
+										}
+										else if (getBit(Bitboard::whiteKingBitboard, i) == 1) {
+											swtone_capture_move.CapturedPiece = 'K';
 										}
 
 										setonw_ray_moves.push_back(swtone_capture_move);
@@ -856,13 +878,15 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 			if (getBit(Bitboard::whiteKingBitboard, white_pawn_keys[counter] + 16) == 1) goto capture_moves;
 			if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 16) == 1) goto capture_moves;
 
-			// Add the two square move since if the program didn't jump to capture_moves then this is permissible (for a pseudo-legal
+			// Add the two square move if pawn is on second rank since if the program didn't jump to capture_moves then this is permissible (for a pseudo-legal
 			// move generator).
-			struct Move pawn_two_square_move;
-			pawn_two_square_move.Piece = 'P';
-			pawn_two_square_move.Move[0] = _strdup(Board64Strings1D[white_pawn_keys[counter]]); // starting square
-			pawn_two_square_move.Move[1] = _strdup(Board64Strings1D[white_pawn_keys[counter] + 16]); // two squares in front ending square
-			moves.push_back(pawn_two_square_move);
+			if ((white_pawn_keys[counter] < 16) && (white_pawn_keys[counter] > 7)) {
+				struct Move pawn_two_square_move;
+				pawn_two_square_move.Piece = 'P';
+				pawn_two_square_move.Move[0] = _strdup(Board64Strings1D[white_pawn_keys[counter]]); // starting square
+				pawn_two_square_move.Move[1] = _strdup(Board64Strings1D[white_pawn_keys[counter] + 16]); // two squares in front ending square
+				moves.push_back(pawn_two_square_move);
+			}
 
 		capture_moves: // jump label for capture moves if two square moves don't need to be checked
 			// Don't want to capture any white piece (same color). Check for these first.
@@ -877,7 +901,8 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										(getBit(Bitboard::blackKnightBitboard, white_pawn_keys[counter] + 7) == 1) ||
 										(getBit(Bitboard::blackBishopBitboard, white_pawn_keys[counter] + 7) == 1) ||
 										(getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 7) == 1) ||
-										(getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1)) {
+										(getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1) ||
+										(getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 7) == 1)) {
 										// add a left capture move (from POV of side to move)
 										struct Move pawn_left_capture_move;
 										pawn_left_capture_move.Piece = 'P';
@@ -897,8 +922,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 7) == 1) {
 											pawn_left_capture_move.CapturedPiece = 'r';
 										}
-										else {
-											pawn_left_capture_move.CapturedPiece = 'q'; // last case: captured piece must be black queen
+										else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1) {
+											pawn_left_capture_move.CapturedPiece = 'q';
+										}
+										else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 7) == 1) {
+											pawn_left_capture_move.CapturedPiece = 'k';
 										}
 
 										moves.push_back(pawn_left_capture_move);
@@ -930,8 +958,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 7) == 1) {
 												pawn_prom_left_move_1.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_left_move_1.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_1.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_1.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_left_move_1);
@@ -956,8 +987,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 7) == 1) {
 												pawn_prom_left_move_2.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_left_move_2.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_2.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_2.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_left_move_2);
@@ -982,8 +1016,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 7) == 1) {
 												pawn_prom_left_move_3.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_left_move_3.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_3.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_3.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_left_move_3);
@@ -1008,8 +1045,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 7) == 1) {
 												pawn_prom_left_move_4.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_left_move_4.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_4.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 7) == 1) {
+												pawn_prom_left_move_4.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_left_move_4);
@@ -1044,7 +1084,8 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										(getBit(Bitboard::blackKnightBitboard, white_pawn_keys[counter] + 9) == 1) ||
 										(getBit(Bitboard::blackBishopBitboard, white_pawn_keys[counter] + 9) == 1) ||
 										(getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 9) == 1) ||
-										(getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1)) {
+										(getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1) ||
+										(getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 9) == 1)) {
 										// add a right capture move (from POV of side to move)
 										struct Move pawn_right_capture_move;
 										pawn_right_capture_move.Move[0] = _strdup(Board64Strings1D[white_pawn_keys[counter]]);
@@ -1063,8 +1104,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 9) == 1) {
 											pawn_right_capture_move.CapturedPiece = 'r';
 										}
-										else {
-											pawn_right_capture_move.CapturedPiece = 'q'; // last case: captured piece must be black queen
+										else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1) {
+											pawn_right_capture_move.CapturedPiece = 'q';
+										}
+										else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 9) == 1) {
+											pawn_right_capture_move.CapturedPiece = 'k';
 										}
 
 										moves.push_back(pawn_right_capture_move);
@@ -1096,8 +1140,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 9) == 1) {
 												pawn_prom_right_move_1.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_right_move_1.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_1.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_1.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_right_move_1);
@@ -1122,8 +1169,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 9) == 1) {
 												pawn_prom_right_move_2.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_right_move_2.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_2.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_2.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_right_move_2);
@@ -1148,8 +1198,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 9) == 1) {
 												pawn_prom_right_move_3.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_right_move_3.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_3.CapturedPiece = 'q';
+											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_3.CapturedPiece = 'k';
 											}
 
 											moves.push_back(pawn_prom_right_move_3);
@@ -1174,9 +1227,13 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::blackRookBitboard, white_pawn_keys[counter] + 9) == 1) {
 												pawn_prom_right_move_4.CapturedPiece = 'r';
 											}
-											else {
-												pawn_prom_right_move_4.CapturedPiece = 'q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::blackQueenBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_4.CapturedPiece = 'q';
 											}
+											else if (getBit(Bitboard::blackKingBitboard, white_pawn_keys[counter] + 9) == 1) {
+												pawn_prom_right_move_4.CapturedPiece = 'k';
+											}
+
 
 											moves.push_back(pawn_prom_right_move_4);
 										}
@@ -2048,13 +2105,15 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 			if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 16) == 1) goto capture_moves_black;
 			if (getBit(Bitboard::blackKingBitboard, black_pawn_keys[counter] - 16) == 1) goto capture_moves_black;
 
-			// Add the two square move since if the program didn't jump to capture_moves then this is permissible (for a pseudo-legal
+			// Add the two square move if pawn is on seventh rank since if the program didn't jump to capture_moves then this is permissible (for a pseudo-legal
 			// move generator).
-			struct Move pawn_two_square_move;
-			pawn_two_square_move.Piece = 'p';
-			pawn_two_square_move.Move[0] = _strdup(Board64Strings1D[black_pawn_keys[counter]]); // starting square
-			pawn_two_square_move.Move[1] = _strdup(Board64Strings1D[black_pawn_keys[counter] - 16]); // two squares in front ending square
-			moves.push_back(pawn_two_square_move);
+			if ((black_pawn_keys[counter] < 56) && (black_pawn_keys[counter] > 47)) {
+				struct Move pawn_two_square_move;
+				pawn_two_square_move.Piece = 'p';
+				pawn_two_square_move.Move[0] = _strdup(Board64Strings1D[black_pawn_keys[counter]]); // starting square
+				pawn_two_square_move.Move[1] = _strdup(Board64Strings1D[black_pawn_keys[counter] - 16]); // two squares in front ending square
+				moves.push_back(pawn_two_square_move);
+			}
 
 		capture_moves_black: // jump label for capture moves if two square moves don't need to be checked
 			// Don't want to capture any black piece (same color). Check for these first.
@@ -2069,7 +2128,8 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										(getBit(Bitboard::whiteKnightBitboard, black_pawn_keys[counter] - 7) == 1) ||
 										(getBit(Bitboard::whiteBishopBitboard, black_pawn_keys[counter] - 7) == 1) ||
 										(getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 7) == 1) ||
-										(getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1)) {
+										(getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1) ||
+										(getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 7) == 1)) {
 										// add a left capture move (from POV of side to move)
 										struct Move pawn_left_capture_move;
 										pawn_left_capture_move.Piece = 'p';
@@ -2089,8 +2149,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 7) == 1) {
 											pawn_left_capture_move.CapturedPiece = 'R';
 										}
-										else {
-											pawn_left_capture_move.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+										else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1) {
+											pawn_left_capture_move.CapturedPiece = 'Q';
+										}
+										else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 7) == 1) {
+											pawn_left_capture_move.CapturedPiece = 'K';
 										}
 
 										moves.push_back(pawn_left_capture_move);
@@ -2122,8 +2185,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 7) == 1) {
 												pawn_prom_left_move_1.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_left_move_1.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_1.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_1.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_left_move_1);
@@ -2148,8 +2214,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 7) == 1) {
 												pawn_prom_left_move_2.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_left_move_2.CapturedPiece = 'Q'; // last case: captured piece must be black queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_2.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_2.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_left_move_2);
@@ -2174,8 +2243,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 7) == 1) {
 												pawn_prom_left_move_3.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_left_move_3.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_3.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_3.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_left_move_3);
@@ -2200,8 +2272,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 7) == 1) {
 												pawn_prom_left_move_4.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_left_move_4.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_4.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 7) == 1) {
+												pawn_prom_left_move_4.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_left_move_4);
@@ -2236,7 +2311,8 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										(getBit(Bitboard::whiteKnightBitboard, black_pawn_keys[counter] - 9) == 1) ||
 										(getBit(Bitboard::whiteBishopBitboard, black_pawn_keys[counter] - 9) == 1) ||
 										(getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 9) == 1) ||
-										(getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1)) {
+										(getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1) ||
+										(getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 9) == 1)) {
 										// add a right capture move (from POV of side to move)
 										struct Move pawn_right_capture_move;
 										pawn_right_capture_move.Move[0] = _strdup(Board64Strings1D[black_pawn_keys[counter]]);
@@ -2255,8 +2331,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 9) == 1) {
 											pawn_right_capture_move.CapturedPiece = 'R';
 										}
-										else {
-											pawn_right_capture_move.CapturedPiece = 'Q'; // last case: captured piece must be black queen
+										else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1) {
+											pawn_right_capture_move.CapturedPiece = 'Q';
+										}
+										else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 9) == 1) {
+											pawn_right_capture_move.CapturedPiece = 'K';
 										}
 
 										moves.push_back(pawn_right_capture_move);
@@ -2288,8 +2367,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 9) == 1) {
 												pawn_prom_right_move_1.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_right_move_1.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_1.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_1.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_right_move_1);
@@ -2314,8 +2396,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 9) == 1) {
 												pawn_prom_right_move_2.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_right_move_2.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_2.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_2.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_right_move_2);
@@ -2340,8 +2425,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 9) == 1) {
 												pawn_prom_right_move_3.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_right_move_3.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_3.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_3.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_right_move_3);
@@ -2366,8 +2454,11 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 											else if (getBit(Bitboard::whiteRookBitboard, black_pawn_keys[counter] - 9) == 1) {
 												pawn_prom_right_move_4.CapturedPiece = 'R';
 											}
-											else {
-												pawn_prom_right_move_4.CapturedPiece = 'Q'; // last case: captured piece must be white queen
+											else if (getBit(Bitboard::whiteQueenBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_4.CapturedPiece = 'Q';
+											}
+											else if (getBit(Bitboard::whiteKingBitboard, black_pawn_keys[counter] - 9) == 1) {
+												pawn_prom_right_move_4.CapturedPiece = 'K';
 											}
 
 											moves.push_back(pawn_prom_right_move_4);
@@ -3149,6 +3240,22 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 	return moves;
 }
 
-//bool isCheck() {
+bool isCheck(struct Game *game) {
+	bool check = 0;
 
-//}
+	game->SideToMove = !game->SideToMove; // switch sides first
+
+	std::vector<struct Move> is_check_moves = generateMoves(game); // get all moves
+
+	// Loop through all moves and look for a king capture.
+	for (int i = 0; i < is_check_moves.size(); ++i) {
+		if ((is_check_moves.at(i).CapturedPiece == 'K') || (is_check_moves.at(i).CapturedPiece == 'k')) {
+			game->SideToMove = !game->SideToMove; // switch sides back
+			check = 1; // in check
+		}
+	}
+
+	game->SideToMove = !game->SideToMove; // switch sides back
+
+	return check;
+}
