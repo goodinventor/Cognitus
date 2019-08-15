@@ -50,174 +50,159 @@ std::vector<struct Move> generateHorizontalRay(int square_key, bool piece_color,
 		end_threshold = 63;
 	}
 
-	// Loop through the ray.
-	for (int i = start_threshold; i <= end_threshold; ++i) {
-		if (i == square_key) continue; // continue to the next iteration if the piece is on that square
-
-		// Check for same colored pieces.
-		if (piece_color == 0) { // piece is white; check for white pieces
+	if (piece_color == 0) { // piece is white
+		// Start by generating moves right in file starting at the file to the right of the piece.
+		for (int i = square_key + 1; i <= end_threshold; ++i) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
 			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
 				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
-				if (i < square_key) {
-					if (horizontal_ray_moves.empty()) continue; // safety check: the vector may be empty
-
-					int numPopMoves = i - start_threshold; // just like line 80: piece is in the way and we need to delete moves
-
-					for (int j = 0; j < numPopMoves; ++j) {
-						horizontal_ray_moves.pop_back();
-					}
-
-					continue;
-				}
-				if (i > square_key) goto end; // ray stops here and capturing same color piece is illegal
+				goto generate_moves_left;
 			}
 
-			if (getBit(Bitboard::whitePawnBitboard, i) == 0) {
-				if (getBit(Bitboard::whiteKnightBitboard, i) == 0) {
-					if (getBit(Bitboard::whiteBishopBitboard, i) == 0) {
-						if (getBit(Bitboard::whiteRookBitboard, i) == 0) {
-							if (getBit(Bitboard::whiteQueenBitboard, i) == 0) {
-								if (getBit(Bitboard::whiteKingBitboard, i) == 0) {
-									// no white piece; proceed to determine if capture or not
-
-									// check for capture
-									if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
-										(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
-										(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
-										if (i < square_key) {
-											int numPopMoves = i - start_threshold; // We've found a piece capture, making moves to the
-																				   // left of this one invalid. numPopMoves tells us how
-																				   // many moves we must pop off the list.
-											for (int j = 0; j < numPopMoves; ++j) {
-												horizontal_ray_moves.pop_back();
-											}
-										}
-
-										// Add the capture move then break out of the for loop if i > square_key.
-										struct Move horizontal_capture_move;
-										horizontal_capture_move.Piece = piece_type;
-										horizontal_capture_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										horizontal_capture_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-
-										if (getBit(Bitboard::blackPawnBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'p';
-										}
-										else if (getBit(Bitboard::blackKnightBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'n';
-										}
-										else if (getBit(Bitboard::blackBishopBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'b';
-										}
-										else if (getBit(Bitboard::blackRookBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'r';
-										}
-										else if (getBit(Bitboard::blackQueenBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'q';
-										}
-										else if (getBit(Bitboard::blackKingBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'k';
-										}
-
-										horizontal_ray_moves.push_back(horizontal_capture_move);
-
-										if (i > square_key) goto end; // the ray stops here; go to the return statement
-									}
-									else { // prepare a normal move
-										struct Move horizontal_move;
-										horizontal_move.Piece = piece_type;
-										horizontal_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										horizontal_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-										horizontal_ray_moves.push_back(horizontal_move);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		else { // piece is black; check for black pieces
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
 			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
 				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
-				if (i < square_key) {
-					if (horizontal_ray_moves.empty()) continue; // safety check: the vector may be empty
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
 
-					int numPopMoves = i - start_threshold; // just like line 80: piece is in the way and we need to delete moves
+				if (getBit(Bitboard::blackPawnBitboard, i) == 1) capture_move.CapturedPiece = 'p';
+				else if (getBit(Bitboard::blackKnightBitboard, i) == 1) capture_move.CapturedPiece = 'n';
+				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
+				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
+				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
 
-					for (int j = 0; j < numPopMoves; ++j) {
-						horizontal_ray_moves.pop_back();
-					}
+				horizontal_ray_moves.push_back(capture_move);
 
-					continue;
-				}
-				if (i > square_key) goto end; // ray stops here and capturing same color piece is illegal
+				goto generate_moves_left;
 			}
 
-			if (getBit(Bitboard::blackPawnBitboard, i) == 0) {
-				if (getBit(Bitboard::blackKnightBitboard, i) == 0) {
-					if (getBit(Bitboard::blackBishopBitboard, i) == 0) {
-						if (getBit(Bitboard::blackRookBitboard, i) == 0) {
-							if (getBit(Bitboard::blackQueenBitboard, i) == 0) {
-								if (getBit(Bitboard::blackKingBitboard, i) == 0) {
-									// no black piece; proceed to determine if capture or not
+			// Else just generate a normal move.
+			struct Move horizontal_move;
+			horizontal_move.Piece = piece_type;
+			horizontal_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			horizontal_move.Move[1] = _strdup(Board64Strings1D[i]);
+			horizontal_ray_moves.push_back(horizontal_move);
+		}
 
-									// check for capture
-									if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
-										(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
-										(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
-										if (i < square_key) {
-											int numPopMoves = i - start_threshold; // We've found a piece capture, making moves to the
-																				   // left of this one invalid. numPopMoves tells us how
-																				   // many moves we must pop off the list.
-											for (int j = 0; j < numPopMoves; ++j) {
-												horizontal_ray_moves.pop_back();
-											}
-										}
-
-										// Add the capture move then break out of the for loop if i > square_key.
-										struct Move horizontal_capture_move;
-										horizontal_capture_move.Piece = piece_type;
-										horizontal_capture_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										horizontal_capture_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-
-										if (getBit(Bitboard::whitePawnBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'P';
-										}
-										else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'N';
-										}
-										else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'B';
-										}
-										else if (getBit(Bitboard::whiteRookBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'R';
-										}
-										else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'Q';
-										}
-										else if (getBit(Bitboard::whiteKingBitboard, i) == 1) {
-											horizontal_capture_move.CapturedPiece = 'K';
-										}
-
-										horizontal_ray_moves.push_back(horizontal_capture_move);
-
-										if (i > square_key) goto end; // the ray stops here; go to the return statement
-									}
-									else { // prepare a normal move
-										struct Move horizontal_move;
-										horizontal_move.Piece = piece_type;
-										horizontal_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										horizontal_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-										horizontal_ray_moves.push_back(horizontal_move);
-									}
-								}
-							}
-						}
-					}
-				}
+	generate_moves_left:
+		for (int i = square_key - 1; i >= start_threshold; --i) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				goto end;
 			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::blackPawnBitboard, i) == 1) capture_move.CapturedPiece = 'p';
+				else if (getBit(Bitboard::blackKnightBitboard, i) == 1) capture_move.CapturedPiece = 'n';
+				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
+				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
+				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
+
+				horizontal_ray_moves.push_back(capture_move);
+
+				goto end;
+			}
+
+			// Else just generate a normal move.
+			struct Move horizontal_move;
+			horizontal_move.Piece = piece_type;
+			horizontal_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			horizontal_move.Move[1] = _strdup(Board64Strings1D[i]);
+			horizontal_ray_moves.push_back(horizontal_move);
+		}
+	}
+	else { // piece is black
+		// Start by generating moves right in file starting at the file to the right of the piece.
+		for (int i = square_key + 1; i <= end_threshold; ++i) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				goto generate_moves_left_black;
+			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::whitePawnBitboard, i) == 1) capture_move.CapturedPiece = 'P';
+				else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) capture_move.CapturedPiece = 'N';
+				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
+				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
+				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
+
+				horizontal_ray_moves.push_back(capture_move);
+
+				goto generate_moves_left_black;
+			}
+
+			// Else just generate a normal move.
+			struct Move horizontal_move;
+			horizontal_move.Piece = piece_type;
+			horizontal_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			horizontal_move.Move[1] = _strdup(Board64Strings1D[i]);
+			horizontal_ray_moves.push_back(horizontal_move);
+		}
+
+	generate_moves_left_black:
+		// Now generate moves to the left.
+		for (int i = square_key - 1; i >= start_threshold; --i) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				goto end;
+			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::whitePawnBitboard, i) == 1) capture_move.CapturedPiece = 'P';
+				else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) capture_move.CapturedPiece = 'N';
+				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
+				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
+				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
+
+				horizontal_ray_moves.push_back(capture_move);
+
+				goto end;
+			}
+
+			// Else just generate a normal move.
+			struct Move horizontal_move;
+			horizontal_move.Piece = piece_type;
+			horizontal_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			horizontal_move.Move[1] = _strdup(Board64Strings1D[i]);
+			horizontal_ray_moves.push_back(horizontal_move);
 		}
 	}
 
@@ -432,170 +417,160 @@ std::vector<struct Move> generateSouthwestToNortheastRay(int square_key, bool pi
 	int start_threshold = SouthwestToNortheastRayStartThresholds[square_key];
 	int end_threshold = SouthwestToNortheastRayEndThresholds[square_key];
 
-	// Loop through the ray.
-	for (int i = start_threshold; i <= end_threshold; i += 9) {
-		if (i == square_key) continue; // continue to the next iteration if the piece is on that square
-
-		// Check for same colored pieces.
-		if (piece_color == 0) { // piece is white
+	if (piece_color == 0) { // piece is white
+		// Start by generating moves up in rank starting at the rank above the piece.
+		for (int i = square_key + 9; i <= end_threshold; i += 9) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
 			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
 				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
-				if (i < square_key) {
-					int numPopMoves = (i - start_threshold) / 9; // just like line 80: piece is in the way and we need to delete moves
-
-					for (int j = 0; j < numPopMoves; ++j) {
-						swtone_ray_moves.pop_back();
-					}
-
-					continue;
-				}
-				if (i > square_key) goto end; // ray stops here and capturing same color piece is illegal
+				goto generate_moves_down;
 			}
 
-			if (getBit(Bitboard::whitePawnBitboard, i) == 0) {
-				if (getBit(Bitboard::whiteKnightBitboard, i) == 0) {
-					if (getBit(Bitboard::whiteBishopBitboard, i) == 0) {
-						if (getBit(Bitboard::whiteRookBitboard, i) == 0) {
-							if (getBit(Bitboard::whiteQueenBitboard, i) == 0) {
-								if (getBit(Bitboard::whiteKingBitboard, i) == 0) {
-									// no white piece; proceed to determine if capture or not
-
-									// check for capture
-									if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
-										(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
-										(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
-										if (i < square_key) {
-											int numPopMoves = (i - start_threshold) / 9; // We've found a piece capture, making moves to the
-																				   // left of this one invalid. numPopMoves tells us how
-																				   // many moves we must pop off the list.
-											for (int j = 0; j < numPopMoves; ++j) {
-												swtone_ray_moves.pop_back();
-											}
-										}
-
-										// Add the capture move then break out of the for loop if i > square_key.
-										struct Move swtone_capture_move;
-										swtone_capture_move.Piece = piece_type;
-										swtone_capture_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										swtone_capture_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-
-										if (getBit(Bitboard::blackPawnBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'p';
-										}
-										else if (getBit(Bitboard::blackKnightBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'n';
-										}
-										else if (getBit(Bitboard::blackBishopBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'b';
-										}
-										else if (getBit(Bitboard::blackRookBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'r';
-										}
-										else if (getBit(Bitboard::blackQueenBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'q';
-										}
-										else if (getBit(Bitboard::blackKingBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'k';
-										}
-
-										swtone_ray_moves.push_back(swtone_capture_move);
-
-										if (i > square_key) goto end; // the ray stops here; go to the return statement
-									}
-									else { // prepare a normal move
-										struct Move swtone_move;
-										swtone_move.Piece = piece_type;
-										swtone_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										swtone_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-										swtone_ray_moves.push_back(swtone_move);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		else {
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
 			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
 				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
-				if (i < square_key) {
-					int numPopMoves = (i - start_threshold) / 9; // just like line 80: piece is in the way and we need to delete moves
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
 
-					for (int j = 0; j < numPopMoves; ++j) {
-						swtone_ray_moves.pop_back();
-					}
+				if (getBit(Bitboard::blackPawnBitboard, i) == 1) capture_move.CapturedPiece = 'p';
+				else if (getBit(Bitboard::blackKnightBitboard, i) == 1) capture_move.CapturedPiece = 'n';
+				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
+				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
+				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
 
-					continue;
-				}
-				if (i > square_key) goto end; // ray stops here and capturing same color piece is illegal
+				swtone_ray_moves.push_back(capture_move);
+
+				goto generate_moves_down;
 			}
 
-			if (getBit(Bitboard::blackPawnBitboard, i) == 0) {
-				if (getBit(Bitboard::blackKnightBitboard, i) == 0) {
-					if (getBit(Bitboard::blackBishopBitboard, i) == 0) {
-						if (getBit(Bitboard::blackRookBitboard, i) == 0) {
-							if (getBit(Bitboard::blackQueenBitboard, i) == 0) {
-								if (getBit(Bitboard::blackKingBitboard, i) == 0) {
-									// no black piece; proceed to determine if capture or not
+			// Else just generate a normal move.
+			struct Move swtone_move;
+			swtone_move.Piece = piece_type;
+			swtone_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			swtone_move.Move[1] = _strdup(Board64Strings1D[i]);
+			swtone_ray_moves.push_back(swtone_move);
+		}
 
-									// check for capture
-									if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
-										(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
-										(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
-										if (i < square_key) {
-											int numPopMoves = (i - start_threshold) / 9; // We've found a piece capture, making moves to the
-																				   // left of this one invalid. numPopMoves tells us how
-																				   // many moves we must pop off the list.
-											for (int j = 0; j < numPopMoves; ++j) {
-												swtone_ray_moves.pop_back();
-											}
-										}
-
-										// Add the capture move then break out of the for loop if i > square_key.
-										struct Move swtone_capture_move;
-										swtone_capture_move.Piece = piece_type;
-										swtone_capture_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										swtone_capture_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-
-										if (getBit(Bitboard::whitePawnBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'P';
-										}
-										else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'N';
-										}
-										else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'B';
-										}
-										else if (getBit(Bitboard::whiteRookBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'R';
-										}
-										else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'Q';
-										}
-										else if (getBit(Bitboard::whiteKingBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'K';
-										}
-
-										swtone_ray_moves.push_back(swtone_capture_move);
-
-										if (i > square_key) goto end; // the ray stops here; go to the return statement
-									}
-									else { // prepare a normal move
-										struct Move swtone_move;
-										swtone_move.Piece = piece_type;
-										swtone_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										swtone_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-										swtone_ray_moves.push_back(swtone_move);
-									}
-								}
-							}
-						}
-					}
-				}
+	generate_moves_down:
+		// Now generate moves down in rank.
+		for (int i = square_key - 9; i >= start_threshold; i -= 9) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				goto end;
 			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::blackPawnBitboard, i) == 1) capture_move.CapturedPiece = 'p';
+				else if (getBit(Bitboard::blackKnightBitboard, i) == 1) capture_move.CapturedPiece = 'n';
+				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
+				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
+				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
+
+				swtone_ray_moves.push_back(capture_move);
+
+				goto end;
+			}
+
+			// Else just generate a normal move.
+			struct Move swtone_move;
+			swtone_move.Piece = piece_type;
+			swtone_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			swtone_move.Move[1] = _strdup(Board64Strings1D[i]);
+			swtone_ray_moves.push_back(swtone_move);
+		}
+	}
+	else { // piece is black
+		// Start by generating moves up in rank starting at the rank above the piece.
+		for (int i = square_key + 9; i <= end_threshold; i += 9) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				goto generate_moves_down_black;
+			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::whitePawnBitboard, i) == 1) capture_move.CapturedPiece = 'P';
+				else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) capture_move.CapturedPiece = 'N';
+				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
+				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
+				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
+
+				swtone_ray_moves.push_back(capture_move);
+
+				goto generate_moves_down;
+			}
+
+			// Else just generate a normal move.
+			struct Move swtone_move;
+			swtone_move.Piece = piece_type;
+			swtone_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			swtone_move.Move[1] = _strdup(Board64Strings1D[i]);
+			swtone_ray_moves.push_back(swtone_move);
+		}
+
+	generate_moves_down_black:
+		// Now generate moves down in rank.
+		for (int i = square_key - 9; i >= start_threshold; i -= 9) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				goto end;
+			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::whitePawnBitboard, i) == 1) capture_move.CapturedPiece = 'P';
+				else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) capture_move.CapturedPiece = 'N';
+				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
+				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
+				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
+
+				swtone_ray_moves.push_back(capture_move);
+
+				goto end;
+			}
+
+			// Else just generate a normal move.
+			struct Move swtone_move;
+			swtone_move.Piece = piece_type;
+			swtone_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			swtone_move.Move[1] = _strdup(Board64Strings1D[i]);
+			swtone_ray_moves.push_back(swtone_move);
 		}
 	}
 
@@ -609,170 +584,160 @@ std::vector<struct Move> generateSoutheastToNorthwestRay(int square_key, bool pi
 	int start_threshold = SoutheastToNorthwestRayStartThresholds[square_key];
 	int end_threshold = SoutheastToNorthwestRayEndThresholds[square_key];
 
-	// Loop through the ray.
-	for (int i = start_threshold; i <= end_threshold; i += 7) {
-		if (i == square_key) continue; // continue to the next iteration if the piece is on that square
-
-		// Check for same colored pieces.
-		if (piece_color == 0) { // piece is white
+	if (piece_color == 0) { // piece is white
+		// Start by generating moves up in rank starting at the rank above the piece.
+		for (int i = square_key + 7; i <= end_threshold; i += 7) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
 			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
 				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
-				if (i < square_key) {
-					int numPopMoves = (i - start_threshold) / 7; // just like line 80: piece is in the way and we need to delete moves
-
-					for (int j = 0; j < numPopMoves; ++j) {
-						setonw_ray_moves.pop_back();
-					}
-
-					continue;
-				}
-				if (i > square_key) goto end; // ray stops here and capturing same color piece is illegal
+				goto generate_moves_down;
 			}
 
-			if (getBit(Bitboard::whitePawnBitboard, i) == 0) {
-				if (getBit(Bitboard::whiteKnightBitboard, i) == 0) {
-					if (getBit(Bitboard::whiteBishopBitboard, i) == 0) {
-						if (getBit(Bitboard::whiteRookBitboard, i) == 0) {
-							if (getBit(Bitboard::whiteQueenBitboard, i) == 0) {
-								if (getBit(Bitboard::whiteKingBitboard, i) == 0) {
-									// no white piece; proceed to determine if capture or not
-
-									// check for capture
-									if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
-										(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
-										(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
-										if (i < square_key) {
-											int numPopMoves = (i - start_threshold) / 7; // We've found a piece capture, making moves to the
-																				   // left of this one invalid. numPopMoves tells us how
-																				   // many moves we must pop off the list.
-											for (int j = 0; j < numPopMoves; ++j) {
-												setonw_ray_moves.pop_back();
-											}
-										}
-
-										// Add the capture move then break out of the for loop if i > square_key.
-										struct Move setonw_capture_move;
-										setonw_capture_move.Piece = piece_type;
-										setonw_capture_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										setonw_capture_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-
-										if (getBit(Bitboard::blackPawnBitboard, i) == 1) {
-											setonw_capture_move.CapturedPiece = 'p';
-										}
-										else if (getBit(Bitboard::blackKnightBitboard, i) == 1) {
-											setonw_capture_move.CapturedPiece = 'n';
-										}
-										else if (getBit(Bitboard::blackBishopBitboard, i) == 1) {
-											setonw_capture_move.CapturedPiece = 'b';
-										}
-										else if (getBit(Bitboard::blackRookBitboard, i) == 1) {
-											setonw_capture_move.CapturedPiece = 'r';
-										}
-										else if (getBit(Bitboard::blackQueenBitboard, i) == 1) {
-											setonw_capture_move.CapturedPiece = 'q';
-										}
-										else if (getBit(Bitboard::blackKingBitboard, i) == 1) {
-											setonw_capture_move.CapturedPiece = 'k';
-										}
-
-										setonw_ray_moves.push_back(setonw_capture_move);
-
-										if (i > square_key) goto end; // the ray stops here; go to the return statement
-									}
-									else { // prepare a normal move
-										struct Move setonw_move;
-										setonw_move.Piece = piece_type;
-										setonw_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										setonw_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-										setonw_ray_moves.push_back(setonw_move);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		else { // piece is black
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
 			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
 				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
-				if (i < square_key) {
-					int numPopMoves = (i - start_threshold) / 7; // just like line 80: piece is in the way and we need to delete moves
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
 
-					for (int j = 0; j < numPopMoves; ++j) {
-						setonw_ray_moves.pop_back();
-					}
+				if (getBit(Bitboard::blackPawnBitboard, i) == 1) capture_move.CapturedPiece = 'p';
+				else if (getBit(Bitboard::blackKnightBitboard, i) == 1) capture_move.CapturedPiece = 'n';
+				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
+				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
+				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
 
-					continue;
-				}
-				if (i > square_key) goto end; // ray stops here and capturing same color piece is illegal
+				setonw_ray_moves.push_back(capture_move);
+
+				goto generate_moves_down;
 			}
 
-			if (getBit(Bitboard::blackPawnBitboard, i) == 0) {
-				if (getBit(Bitboard::blackKnightBitboard, i) == 0) {
-					if (getBit(Bitboard::blackBishopBitboard, i) == 0) {
-						if (getBit(Bitboard::blackRookBitboard, i) == 0) {
-							if (getBit(Bitboard::blackQueenBitboard, i) == 0) {
-								if (getBit(Bitboard::blackKingBitboard, i) == 0) {
-									// no black piece; proceed to determine if capture or not
+			// Else just generate a normal move.
+			struct Move setonw_move;
+			setonw_move.Piece = piece_type;
+			setonw_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			setonw_move.Move[1] = _strdup(Board64Strings1D[i]);
+			setonw_ray_moves.push_back(setonw_move);
+		}
 
-									// check for capture
-									if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
-										(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
-										(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
-										if (i < square_key) {
-											int numPopMoves = (i - start_threshold) / 7; // We've found a piece capture, making moves to the
-																				   // left of this one invalid. numPopMoves tells us how
-																				   // many moves we must pop off the list.
-											for (int j = 0; j < numPopMoves; ++j) {
-												setonw_ray_moves.pop_back();
-											}
-										}
-
-										// Add the capture move then break out of the for loop if i > square_key.
-										struct Move swtone_capture_move;
-										swtone_capture_move.Piece = piece_type;
-										swtone_capture_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										swtone_capture_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-
-										if (getBit(Bitboard::whitePawnBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'P';
-										}
-										else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'N';
-										}
-										else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'B';
-										}
-										else if (getBit(Bitboard::whiteRookBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'R';
-										}
-										else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'Q';
-										}
-										else if (getBit(Bitboard::whiteKingBitboard, i) == 1) {
-											swtone_capture_move.CapturedPiece = 'K';
-										}
-
-										setonw_ray_moves.push_back(swtone_capture_move);
-
-										if (i > square_key) goto end; // the ray stops here; go to the return statement
-									}
-									else { // prepare a normal move
-										struct Move setonw_move;
-										setonw_move.Piece = piece_type;
-										setonw_move.Move[0] = _strdup(Board64Strings1D[square_key]); // starting square
-										setonw_move.Move[1] = _strdup(Board64Strings1D[i]); // ending square
-										setonw_ray_moves.push_back(setonw_move);
-									}
-								}
-							}
-						}
-					}
-				}
+	generate_moves_down:
+		// Now generate moves down in rank.
+		for (int i = square_key - 7; i >= start_threshold; i -= 7) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				goto end;
 			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::blackPawnBitboard, i) == 1) capture_move.CapturedPiece = 'p';
+				else if (getBit(Bitboard::blackKnightBitboard, i) == 1) capture_move.CapturedPiece = 'n';
+				else if (getBit(Bitboard::blackBishopBitboard, i) == 1) capture_move.CapturedPiece = 'b';
+				else if (getBit(Bitboard::blackRookBitboard, i) == 1) capture_move.CapturedPiece = 'r';
+				else if (getBit(Bitboard::blackQueenBitboard, i) == 1) capture_move.CapturedPiece = 'q';
+				else if (getBit(Bitboard::blackKingBitboard, i) == 1) capture_move.CapturedPiece = 'k';
+
+				setonw_ray_moves.push_back(capture_move);
+
+				goto end;
+			}
+
+			// Else just generate a normal move.
+			struct Move setonw_move;
+			setonw_move.Piece = piece_type;
+			setonw_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			setonw_move.Move[1] = _strdup(Board64Strings1D[i]);
+			setonw_ray_moves.push_back(setonw_move);
+		}
+	}
+	else { // piece is black
+		// Start by generating moves up in rank starting at the rank above the piece.
+		for (int i = square_key + 7; i <= end_threshold; i += 7) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				goto generate_moves_down_black;
+			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::whitePawnBitboard, i) == 1) capture_move.CapturedPiece = 'P';
+				else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) capture_move.CapturedPiece = 'N';
+				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
+				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
+				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
+
+				setonw_ray_moves.push_back(capture_move);
+
+				goto generate_moves_down;
+			}
+
+			// Else just generate a normal move.
+			struct Move setonw_move;
+			setonw_move.Piece = piece_type;
+			setonw_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			setonw_move.Move[1] = _strdup(Board64Strings1D[i]);
+			setonw_ray_moves.push_back(setonw_move);
+		}
+
+	generate_moves_down_black:
+		// Now generate moves down in rank.
+		for (int i = square_key - 9; i >= start_threshold; i -= 9) {
+			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
+			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
+				(getBit(Bitboard::blackQueenBitboard, i) == 1) || (getBit(Bitboard::blackKingBitboard, i) == 1)) {
+				goto end;
+			}
+
+			// Check for an opposite color piece, in which case we first create a capture move then end generation of the ray in this direction.
+			if ((getBit(Bitboard::whitePawnBitboard, i) == 1) || (getBit(Bitboard::whiteKnightBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteBishopBitboard, i) == 1) || (getBit(Bitboard::whiteRookBitboard, i) == 1) ||
+				(getBit(Bitboard::whiteQueenBitboard, i) == 1) || (getBit(Bitboard::whiteKingBitboard, i) == 1)) {
+				struct Move capture_move;
+				capture_move.Piece = piece_type;
+				capture_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+				capture_move.Move[1] = _strdup(Board64Strings1D[i]);
+
+				if (getBit(Bitboard::whitePawnBitboard, i) == 1) capture_move.CapturedPiece = 'P';
+				else if (getBit(Bitboard::whiteKnightBitboard, i) == 1) capture_move.CapturedPiece = 'N';
+				else if (getBit(Bitboard::whiteBishopBitboard, i) == 1) capture_move.CapturedPiece = 'B';
+				else if (getBit(Bitboard::whiteRookBitboard, i) == 1) capture_move.CapturedPiece = 'R';
+				else if (getBit(Bitboard::whiteQueenBitboard, i) == 1) capture_move.CapturedPiece = 'Q';
+				else if (getBit(Bitboard::whiteKingBitboard, i) == 1) capture_move.CapturedPiece = 'K';
+
+				setonw_ray_moves.push_back(capture_move);
+
+				goto end;
+			}
+
+			// Else just generate a normal move.
+			struct Move setonw_move;
+			setonw_move.Piece = piece_type;
+			setonw_move.Move[0] = _strdup(Board64Strings1D[square_key]);
+			setonw_move.Move[1] = _strdup(Board64Strings1D[i]);
+			setonw_ray_moves.push_back(setonw_move);
 		}
 	}
 
@@ -3258,4 +3223,24 @@ bool isCheck(struct Game *game) {
 	game->SideToMove = !game->SideToMove; // switch sides back
 
 	return check;
+}
+
+void legalizeMoves(struct Game *game, std::vector<struct Move> moves_list) {
+	// Loop through all moves.
+	for (int i = 0; i < moves_list.size(); ++i) {
+		// The king cannot castle in check.
+		if (isCheck(game) && moves_list.at(i).IsCastle) moves_list.erase(moves_list.begin() + i);
+
+		// Check for moves that leave king in check afterwards.
+		std::string move_string_init;
+		move_string_init.append(moves_list.at(i).Move[0]);
+		move_string_init.append(moves_list.at(i).Move[1]);
+		char* move_string = _strdup(move_string_init.c_str());
+		makeMove(move_string, game);
+
+		// move is illegal if the king is in check after the move has been made
+		if (isCheck(game)) moves_list.erase(moves_list.begin() + i);
+
+		unmakeMove(moves_list.at(i), game);
+	}
 }
