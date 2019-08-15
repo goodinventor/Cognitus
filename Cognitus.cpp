@@ -17,17 +17,21 @@
 
 int main() {
 	Game *myGame = new Game;
-	const char* fen = "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1";
+	const char* fen = "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1";
 	char* pos = _strdup(fen);
 
 	importFEN(pos, myGame); // initialize position
 
 	displayBitboards();
 
-	bool check = isCheck(myGame);
+	std::vector<struct Move> myMoves = generateMoves(myGame);
+	legalizeMoves(myGame, myMoves);
 
-	if (check) printf("The king is in check!");
-	else printf("The king is not in check.");
-	
+	for (int i = 0; i < myMoves.size(); ++i) {
+		printf(myMoves.at(i).Move[0]);
+		printf(myMoves.at(i).Move[1]);
+		printf("\n");
+	}
+
 	return 0;
 }
