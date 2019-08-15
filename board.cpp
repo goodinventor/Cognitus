@@ -527,3 +527,199 @@ void makeMove(char* move, struct Game *game) {
 		}
 	}
 }
+
+void unmakeMove(struct Move move, struct Game* game) {
+	// We check the length of the string, then split it into 2 or 3 parts.
+	std::string start_square = move.Move[0];
+	std::string end_square = move.Move[1];
+	std::string promotion_piece(1, move.PromotionPiece);
+	// Compute offsets. Start offset will be added to the corresponding piece bitboard and end offset will be subtracted similarly.
+	unsigned long long int start_offset = UCISquareToBitboard(_strdup(start_square.c_str()));
+	unsigned long long int end_offset = UCISquareToBitboard(_strdup(end_square.c_str()));
+
+	// If piece is a pawn at the starting square of the move, we need to take into account the possibility of promotions.
+	if ((move.Piece == 'P') || (move.Piece == 'p')) {
+		switch (move.PromotionPiece) {
+		case 'N':
+			Bitboard::whiteKnightBitboard -= end_offset;
+			Bitboard::whitePawnBitboard += start_offset;
+			break;
+
+		case 'B':
+			Bitboard::whiteBishopBitboard -= end_offset;
+			Bitboard::whitePawnBitboard += start_offset;
+			break;
+
+		case 'R':
+			Bitboard::whiteRookBitboard -= end_offset;
+			Bitboard::whitePawnBitboard += start_offset;
+			break;
+
+		case 'Q':
+			Bitboard::whiteQueenBitboard -= end_offset;
+			Bitboard::whitePawnBitboard += start_offset;
+			break;
+
+		case 'n':
+			Bitboard::blackKnightBitboard -= end_offset;
+			Bitboard::blackPawnBitboard += start_offset;
+			break;
+
+		case 'b':
+			Bitboard::blackBishopBitboard -= end_offset;
+			Bitboard::blackPawnBitboard += start_offset;
+			break;
+
+		case 'r':
+			Bitboard::blackRookBitboard -= end_offset;
+			Bitboard::blackPawnBitboard += start_offset;
+			break;
+
+		case 'q':
+			Bitboard::blackQueenBitboard -= end_offset;
+			Bitboard::blackPawnBitboard += start_offset;
+			break;
+
+		default: // no promotion
+			if (move.Piece == 'P') {
+				Bitboard::whitePawnBitboard -= end_offset;
+				Bitboard::whitePawnBitboard += start_offset;
+			}
+			else {
+				Bitboard::blackPawnBitboard -= end_offset;
+				Bitboard::blackPawnBitboard += start_offset;
+			}
+			break;
+		}
+	}
+	// The king can castle, which we need a special case for since UCI castling moves are expressed in terms of the king movement.
+	else if ((move.Piece == 'K') || (move.Piece == 'k')) {
+		Bitboard::whiteKingBitboard -= end_offset;
+		Bitboard::whiteKingBitboard += start_offset;
+			
+		if (move.IsCastle && (move.Piece == 'K')) {
+			// check king location to determine side of castling
+			if (end_offset == 0x4) { // queenside castling
+				Bitboard::whiteRookBitboard -= 0x8;
+				Bitboard::whiteRookBitboard += 0x1;
+				game->CanCastleQueensideWhite = 1;
+			}
+			else { // kingside castling
+				Bitboard::whiteRookBitboard -= 0x20;
+				Bitboard::whiteRookBitboard += 0x80;
+				game->CanCastleKingsideWhite = 1;
+			}
+		}
+		else if (move.IsCastle && (move.Piece == 'k')) {
+			// check king location to determine side of castling
+			if (end_offset == 0x4) { // queenside castling
+				Bitboard::blackRookBitboard -= 0x800000000000000;
+				Bitboard::blackRookBitboard += 0x100000000000000;
+				game->CanCastleQueensideBlack = 1;
+			}
+			else { // kingside castling
+				Bitboard::blackRookBitboard -= 0x2000000000000000;
+				Bitboard::blackRookBitboard += 0x8000000000000000;
+				game->CanCastleKingsideBlack = 1;
+			}
+		}
+
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'N') {
+		Bitboard::whiteKnightBitboard -= end_offset;
+		Bitboard::whiteKnightBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'n') {
+		Bitboard::blackKnightBitboard -= end_offset;
+		Bitboard::blackKnightBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'B') {
+		Bitboard::whiteBishopBitboard -= end_offset;
+		Bitboard::whiteBishopBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'b') {
+		Bitboard::blackBishopBitboard -= end_offset;
+		Bitboard::blackBishopBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'R') {
+		Bitboard::whiteRookBitboard -= end_offset;
+		Bitboard::whiteRookBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'r') {
+		Bitboard::blackRookBitboard -= end_offset;
+		Bitboard::blackRookBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'Q') {
+		Bitboard::whiteQueenBitboard -= end_offset;
+		Bitboard::whiteQueenBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'q') {
+		Bitboard::blackQueenBitboard -= end_offset;
+		Bitboard::blackQueenBitboard += start_offset;
+		game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'K') {
+	Bitboard::whiteKingBitboard -= end_offset;
+	Bitboard::whiteKingBitboard += start_offset;
+	game->NumHalfMovesFiftyMovesRule--;
+	}
+	else if (move.Piece == 'k') {
+	Bitboard::blackKingBitboard -= end_offset;
+	Bitboard::blackKingBitboard += start_offset;
+	game->NumHalfMovesFiftyMovesRule--;
+	}
+
+	// handle captures
+	switch (move.CapturedPiece) {
+	case 'P':
+		Bitboard::whitePawnBitboard += end_offset;
+		break;
+
+	case 'N':
+		Bitboard::whiteKnightBitboard += end_offset;
+		break;
+
+	case 'B':
+		Bitboard::whiteBishopBitboard += end_offset;
+		break;
+
+	case 'R':
+		Bitboard::whiteRookBitboard += end_offset;
+		break;
+
+	case 'Q':
+		Bitboard::whiteQueenBitboard += end_offset;
+		break;
+
+	case 'p':
+		Bitboard::blackPawnBitboard += end_offset;
+		break;
+
+	case 'n':
+		Bitboard::blackKnightBitboard += end_offset;
+		break;
+
+	case 'b':
+		Bitboard::blackBishopBitboard += end_offset;
+		break;
+
+	case 'r':
+		Bitboard::blackRookBitboard += end_offset;
+		break;
+
+	case 'q':
+		Bitboard::blackQueenBitboard += end_offset;
+		break;
+	}
+
+	game->SideToMove = !game->SideToMove; // this was updated in makeMove() and we want to reverse it
+	if (game->SideToMove == 1) game->MoveNumber--;
+}
