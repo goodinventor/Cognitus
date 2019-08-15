@@ -8,6 +8,7 @@
 #include <cinttypes>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "board.h"
 
 std::vector<struct Move> generateHorizontalRay(int square_key, bool piece_color, char piece_type) {
@@ -3225,22 +3226,47 @@ bool isCheck(struct Game *game) {
 	return check;
 }
 
-void legalizeMoves(struct Game *game, std::vector<struct Move> moves_list) {
-	// Loop through all moves.
-	for (int i = 0; i < moves_list.size(); ++i) {
-		// The king cannot castle in check.
-		if (isCheck(game) && moves_list.at(i).IsCastle) moves_list.erase(moves_list.begin() + i);
+bool kingCastleInCheckPred(struct Game& game, const struct Move& move) {
+	//struct Game game_internal = game;
+	return (isCheck(&game) && move.IsCastle);
+}
 
-		// Check for moves that leave king in check afterwards.
-		std::string move_string_init;
-		move_string_init.append(moves_list.at(i).Move[0]);
-		move_string_init.append(moves_list.at(i).Move[1]);
-		char* move_string = _strdup(move_string_init.c_str());
-		makeMove(move_string, game);
+bool kingInCheckAfterMovePred(struct Game& game, const struct Move& move) {
+	struct Game game_internal = game;
 
-		// move is illegal if the king is in check after the move has been made
-		if (isCheck(game)) moves_list.erase(moves_list.begin() + i);
+	bool val = 0;
 
-		unmakeMove(moves_list.at(i), game);
-	}
+	// Check for moves that leave king in check afterwards.
+	std::string move_string_init;
+	move_string_init.append(move.Move[0]);
+	move_string_init.append(move.Move[1]);
+	char* move_string = _strdup(move_string_init.c_str());
+	makeMove(move_string, &game_internal);
+
+	game_internal.SideToMove = !game_internal.SideToMove; // need the same side's point of view since makeMove() automatically switches sides
+
+	// move is illegal if the king is in check after the move has been made
+	if (isCheck(&game_internal)) val = 1;
+
+	game_internal.SideToMove = !game_internal.SideToMove; // change back
+
+	unmakeMove(move, &game_internal);
+
+	return val;
+}
+
+std::vector<struct Move> legalizeMoves(struct Game *game, std::vector<struct Move> moves_list) {
+	std::vector<struct Move> moves_list_internal = moves_list; // local copy to make changes
+
+	// lambdas for dealing with predicates with two arguments
+	auto pred1 = [&](struct Move move) -> bool { return kingCastleInCheckPred(*game, move); };
+	auto pred2 = [&](struct Move move) -> bool { return kingInCheckAfterMovePred(*game, move); };
+
+	auto pred1_iterator = std::remove_if(moves_list_internal.begin(), moves_list_internal.end(), pred1);
+	moves_list_internal.erase(pred1_iterator, moves_list_internal.end()); // king cannot castle while in check
+
+	auto pred2_iterator = std::remove_if(moves_list_internal.begin(), moves_list_internal.end(), pred2);
+	moves_list_internal.erase(pred2_iterator, moves_list_internal.end()); // player cannot make a move that leaves king in check
+
+	return moves_list_internal;
 }
