@@ -10,6 +10,7 @@
 #include <cinttypes>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "board.h"
 
 std::vector<struct Move> generateHorizontalRay(int square_key, bool piece_color, char piece_type); // piece_color = 0 if piece is white
@@ -21,4 +22,7 @@ std::vector<struct Move> generateMoves(struct Game *game);
 
 bool isCheck(struct Game *game); // returns 1 if side to move is in check
 
-void legalizeMoves(struct Game *game, std::vector<struct Move> moves_list);
+bool kingCastleInCheckPred(struct Game& game, const struct Move& move); // predicate for checking that king cannot castle in check for legalizeMoves()
+bool kingInCheckAfterMovePred(struct Game& game, const struct Move& move); // predicate for checking whether king is in check after a move for legalizeMoves()
+
+std::vector<struct Move> legalizeMoves(struct Game *game, std::vector<struct Move> moves_list);
