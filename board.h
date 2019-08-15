@@ -139,3 +139,4 @@ unsigned char offsetsTo64(unsigned long long offset); // converts offsets (e.g. 
 unsigned long long board64ToOffset(unsigned char bitNumber); // reverse of offsetsTo64
 
 void makeMove(char* move, struct Game *game);
+void unmakeMove(struct Move move, struct Game* game);
