@@ -704,7 +704,7 @@ std::vector<struct Move> generateSoutheastToNorthwestRay(int square_key, bool pi
 
 	generate_moves_down_black:
 		// Now generate moves down in rank.
-		for (int i = square_key - 9; i >= start_threshold; i -= 9) {
+		for (int i = square_key - 7; i >= start_threshold; i -= 7) {
 			// Check for a same color piece, in which case we immediately end generation of the ray in this direction.
 			if ((getBit(Bitboard::blackPawnBitboard, i) == 1) || (getBit(Bitboard::blackKnightBitboard, i) == 1) ||
 				(getBit(Bitboard::blackBishopBitboard, i) == 1) || (getBit(Bitboard::blackRookBitboard, i) == 1) ||
