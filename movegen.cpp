@@ -1606,7 +1606,7 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 		int counter_r = 0;
 		for (int i = 0; i < 64; ++i) {
 			if (getBit(Bitboard::whiteRookBitboard, i) == 1) {
-				white_knight_keys[counter_r] = i;
+				white_rook_keys[counter_r] = i;
 				++counter_r;
 			}
 		}
