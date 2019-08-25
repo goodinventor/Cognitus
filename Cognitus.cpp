@@ -18,7 +18,7 @@
 
 int main() {
 	Game *myGame = new Game;
-	const char* fen = "rnb1kbnr/pppp1ppp/8/4p3/4PP1q/8/PPPP2PP/RNBQKBNR w KQkq - 0 1";
+	const char* fen = "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/2P2N2/PP1P1PPP/RNBQKB1R b KQkq - 0 1";
 	char* pos = _strdup(fen);
 
 	importFEN(pos, myGame); // initialize position
