@@ -1208,12 +1208,12 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 									else if ((getBit(Bitboard::blackPawnBitboard, white_pawn_keys[counter] + 1) == 1) &&
 											 (game->EnPassantTargetSquare == board64ToOffset(white_pawn_keys[counter] + 1))) {
 										// Add en passant to the right move.
-										struct Move en_passant_right_move;
-										en_passant_right_move.Piece = 'P';
-										en_passant_right_move.Move[0] = _strdup(Board64Strings1D[white_pawn_keys[counter]]); // starting square
-										en_passant_right_move.Move[1] = _strdup(Board64Strings1D[white_pawn_keys[counter] + 9]); // one square in front and to the right ending square
-										en_passant_right_move.CapturedPiece = 'p'; // in an en passant capture the captured piece is always a pawn
-										moves.push_back(en_passant_right_move);
+										struct Move en_passant_right_move_white;
+										en_passant_right_move_white.Piece = 'P';
+										en_passant_right_move_white.Move[0] = _strdup(Board64Strings1D[white_pawn_keys[counter]]); // starting square
+										en_passant_right_move_white.Move[1] = _strdup(Board64Strings1D[white_pawn_keys[counter] + 9]); // one square in front and to the right ending square
+										en_passant_right_move_white.CapturedPiece = 'p'; // in an en passant capture the captured piece is always a pawn
+										moves.push_back(en_passant_right_move_white);
 									}
 								}
 							}
@@ -2434,12 +2434,12 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 									else if ((getBit(Bitboard::whitePawnBitboard, black_pawn_keys[counter] - 1) == 1) &&
 										(game->EnPassantTargetSquare == board64ToOffset(black_pawn_keys[counter] - 1))) {
 										// Add en passant to the right move.
-										struct Move en_passant_right_move;
-										en_passant_right_move.Piece = 'p';
-										en_passant_right_move.Move[0] = _strdup(Board64Strings1D[black_pawn_keys[counter]]); // starting square
-										en_passant_right_move.Move[1] = _strdup(Board64Strings1D[black_pawn_keys[counter] + 9]); // one square in front and to the right ending square
-										en_passant_right_move.CapturedPiece = 'P'; // in an en passant capture the captured piece is always a pawn
-										moves.push_back(en_passant_right_move);
+										struct Move en_passant_right_move_black;
+										en_passant_right_move_black.Piece = 'p';
+										en_passant_right_move_black.Move[0] = _strdup(Board64Strings1D[black_pawn_keys[counter]]); // starting square
+										en_passant_right_move_black.Move[1] = _strdup(Board64Strings1D[black_pawn_keys[counter] + 9]); // one square in front and to the right ending square
+										en_passant_right_move_black.CapturedPiece = 'P'; // in an en passant capture the captured piece is always a pawn
+										moves.push_back(en_passant_right_move_black);
 									}
 								}
 							}
@@ -2491,16 +2491,16 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 										black_knight_move_1.CapturedPiece = 'P'; // captured piece is a white pawn
 									}
 									else if (getBit(Bitboard::whiteKnightBitboard, black_knight_keys[counter] + 15) == 1) {
-										black_knight_move_1.CapturedPiece = 'n';
+										black_knight_move_1.CapturedPiece = 'N';
 									}
 									else if (getBit(Bitboard::whiteBishopBitboard, black_knight_keys[counter] + 15) == 1) {
-										black_knight_move_1.CapturedPiece = 'b';
+										black_knight_move_1.CapturedPiece = 'B';
 									}
 									else if (getBit(Bitboard::whiteRookBitboard, black_knight_keys[counter] + 15) == 1) {
-										black_knight_move_1.CapturedPiece = 'r';
+										black_knight_move_1.CapturedPiece = 'R';
 									}
 									else if (getBit(Bitboard::whiteQueenBitboard, black_knight_keys[counter] + 15) == 1) {
-										black_knight_move_1.CapturedPiece = 'q';
+										black_knight_move_1.CapturedPiece = 'Q';
 									}
 
 									moves.push_back(black_knight_move_1);
@@ -2604,7 +2604,7 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 								if (getBit(Bitboard::blackKingBitboard, black_knight_keys[counter] + 10) == 0) {
 									// move can be made
 									struct Move black_knight_move_4;
-									black_knight_move_4.Piece = 'N';
+									black_knight_move_4.Piece = 'n';
 									black_knight_move_4.Move[0] = _strdup(Board64Strings1D[black_knight_keys[counter]]);
 									black_knight_move_4.Move[1] = _strdup(Board64Strings1D[black_knight_keys[counter] + 10]);
 
@@ -2645,7 +2645,7 @@ std::vector<struct Move> generateMoves(struct Game *game) {
 								if (getBit(Bitboard::blackKingBitboard, black_knight_keys[counter] - 10) == 0) {
 									// move can be made
 									struct Move black_knight_move_5;
-									black_knight_move_5.Piece = 'N';
+									black_knight_move_5.Piece = 'n';
 									black_knight_move_5.Move[0] = _strdup(Board64Strings1D[black_knight_keys[counter]]);
 									black_knight_move_5.Move[1] = _strdup(Board64Strings1D[black_knight_keys[counter] - 10]);
 
@@ -3216,7 +3216,7 @@ bool isCheck(struct Game *game) {
 	// Loop through all moves and look for a king capture.
 	for (int i = 0; i < is_check_moves.size(); ++i) {
 		if ((is_check_moves.at(i).CapturedPiece == 'K') || (is_check_moves.at(i).CapturedPiece == 'k')) {
-			game->SideToMove = !game->SideToMove; // switch sides back
+			//game->SideToMove = !game->SideToMove; // switch sides back
 			check = 1; // in check
 		}
 	}
@@ -3232,7 +3232,7 @@ bool kingCastleInCheckPred(struct Game& game, const struct Move& move) {
 }
 
 bool kingInCheckAfterMovePred(struct Game& game, const struct Move& move) {
-	struct Game game_internal = game;
+	//struct Game game_internal = game;
 
 	bool val = 0;
 
@@ -3241,16 +3241,16 @@ bool kingInCheckAfterMovePred(struct Game& game, const struct Move& move) {
 	move_string_init.append(move.Move[0]);
 	move_string_init.append(move.Move[1]);
 	char* move_string = _strdup(move_string_init.c_str());
-	makeMove(move_string, &game_internal);
+	makeMove(move_string, &game);
 
-	game_internal.SideToMove = !game_internal.SideToMove; // need the same side's point of view since makeMove() automatically switches sides
+	game.SideToMove = !game.SideToMove; // need the same side's point of view since makeMove() automatically switches sides
 
 	// move is illegal if the king is in check after the move has been made
-	if (isCheck(&game_internal)) val = 1;
+	if (isCheck(&game)) val = 1;
 
-	game_internal.SideToMove = !game_internal.SideToMove; // change back
+	game.SideToMove = !game.SideToMove; // change back
 
-	unmakeMove(move, &game_internal);
+	unmakeMove(move, &game);
 
 	return val;
 }
@@ -3260,11 +3260,12 @@ std::vector<struct Move> legalizeMoves(struct Game *game, std::vector<struct Mov
 
 	// lambdas for dealing with predicates with two arguments
 	auto pred1 = [&](struct Move move) -> bool { return kingCastleInCheckPred(*game, move); };
-	auto pred2 = [&](struct Move move) -> bool { return kingInCheckAfterMovePred(*game, move); };
+	//auto pred2 = [&](struct Move move) -> bool { return kingInCheckAfterMovePred(*game, move); };
 
 	auto pred1_iterator = std::remove_if(moves_list_internal.begin(), moves_list_internal.end(), pred1);
 	moves_list_internal.erase(pred1_iterator, moves_list_internal.end()); // king cannot castle while in check
 
+	auto pred2 = [&](struct Move move) -> bool { return kingInCheckAfterMovePred(*game, move); };
 	auto pred2_iterator = std::remove_if(moves_list_internal.begin(), moves_list_internal.end(), pred2);
 	moves_list_internal.erase(pred2_iterator, moves_list_internal.end()); // player cannot make a move that leaves king in check
 
